@@ -104,8 +104,10 @@ if __name__ == "__main__":
     from random import randint
     sorts_attempted = 10
     failed_sorts = 0
-    for i in range(10):
-        unsorted_list = [randint(0,100) for i in range(10)]
+    
+    for i in range(sorts_attempted):
+        list_size = randint(10,26)
+        unsorted_list = [randint(0,100) for i in range(list_size)]
         print(f"Unsorted: \t {unsorted_list}")
         for i in unsorted_list:
             heap.insert(i)
