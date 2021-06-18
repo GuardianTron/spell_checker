@@ -24,7 +24,7 @@ class Node:
 
         for dist in self._children.keys():
             if dist >= min_search_distance and dist <= max_search_distance:
-                self._children[dist].search(search_term,tolerance,metric_function)
+                self._children[dist].search(search_term,tolerance,metric_function,results_list)
 
         
 
