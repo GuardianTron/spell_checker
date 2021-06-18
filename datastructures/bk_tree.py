@@ -39,7 +39,7 @@ class BKTree:
         if self._root is None:
             self._root = Node(element)
         else:
-            self._root.add_child(element,self._metric_function)
+            self._root.add_child(Node(element),self._metric_function)
 
     def search(self,search_term,tolerance,results_list=[]):
         if self._root is None:
