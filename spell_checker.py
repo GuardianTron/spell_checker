@@ -5,8 +5,36 @@ import sys
 import timeit
 import pickle
 
+'''
+Developer: Anthony Feeney
+Email: feeney.anthony.l@gmail.com
+
+This script implements a basic spellchecker utilizing a
+memory optimized version of Wagner-Fischer algorithm to 
+calculate the edit distance for words and a BK Tree to 
+limit comparisons. 
+Lists up to 25 words that are the closest match to the 
+supplied string.
+
+Usage:
+Pass string to be checked as parameter.
+'''
+
 def load_dictionary(filename='usa.txt'):
-    #load the dictionary if cached, otherwise build from text file
+    '''
+    Loads the dictionary from file and stores in BKTree
+
+    This function will load dictionary database from a 
+    pickled BK tree if found.
+    If not found, a text file consisting of words separated by \\n 
+    newline characters will loaded and and processed into a BK tree
+    which will then be pickled.   
+
+    Keyword arguments:
+    filename --- Name of the text file containing the dictionary
+
+    Return: BKTree
+    '''
     with open('usa.txt','r') as words_file:
         words = words_file.readlines()
     random.shuffle(words)
