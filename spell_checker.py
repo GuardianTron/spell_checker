@@ -8,6 +8,7 @@ import pickle
 
 
 search_string = sys.argv[1].strip()
+#load the dictionary if cached, otherwise build from text file
 with open('usa.txt','r') as words_file:
     words = words_file.readlines()
 random.shuffle(words)

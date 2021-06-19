@@ -17,7 +17,8 @@ class Node:
     
     def search(self,search_term,tolerance,metric_function,results_list):
         distance = metric_function(self._payload,search_term)
-        results_list.append((self._payload,distance))
+        if distance <= tolerance:
+            results_list.append((self._payload,distance))
         min_search_distance = distance - tolerance
         min_search_distance = min_search_distance if min_search_distance > 1 else 1
         max_search_distance = distance + tolerance
