@@ -46,3 +46,4 @@ class BKTree:
         if self._root is None:
             raise LookupError('BKTree has no children.')
         self._root.search(search_term,tolerance,self._metric_function,results_list)
+        return results_list
