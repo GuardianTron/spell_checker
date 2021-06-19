@@ -1,6 +1,17 @@
 def levenshtein_distance(word1,word2):
+    ''' Returns the Levenshtein distance between two words. '''
     #initialize levenstein distance for word 2 with null string
     distances = [i for i in range(0,len(word2)+1)]
+
+    # Implementation note:
+    # The following is a modified version of the Wagner-Fischer
+    # algorith optimized for memory usuage.
+    # In this version, the current index being examined contains the 
+    # score which represents the cell above it in the full matrix 
+    # version. The index is contains the prior horizontal comparison.
+    # Once a comparison is completed, the current index's value
+    # is moved to a storage variable which will represent the diagonal 
+    # comparison for the next iteration.
 
     #compare words
     for letter_index_word1 in range(0,len(word1)):
