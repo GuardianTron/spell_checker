@@ -32,17 +32,22 @@ class Node:
 
 class BKTree:
 
+    '''A Burkhard-Keller Tree implementation.'''
+
     def __init__(self,metric_function):
+        '''Takes a metric function that wil be used to compare and store elements.'''
         self._root = None
         self._metric_function = metric_function
 
     def add_element(self,element):
+        '''Adds an element to the tree.'''
         if self._root is None:
             self._root = Node(element)
         else:
             self._root.add_child(Node(element),self._metric_function)
 
     def search(self,search_term,tolerance,results_list=[]):
+        '''Returns all items within the tree within a given tolerance to search_term.'''
         if self._root is None:
             raise LookupError('BKTree has no children.')
         self._root.search(search_term,tolerance,self._metric_function,results_list)
