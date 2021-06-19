@@ -26,19 +26,13 @@ except:
     dictionary_handle.close()
 
 
-results_dict = dictionary.search(search_string,4)
+results = dictionary.search(search_string,4)
 
 
 
-results_bute = [(word,levenshtein_distance(search_string,word.strip())) for word in words]
-
-
-
-results_dict.sort(key= lambda result_tuple: result_tuple[1])
-results_bute.sort(key= lambda result_tuple: result_tuple[1])
+results.sort(key= lambda result_tuple: result_tuple[1])
 print(f'Search String: {search_string}')
-print(f'Number dictionary results: {len(results_dict)}')
+print(f'Number dictionary results: {len(results)}')
 for i in range(0,20):
-    word_dict,score_dict = results_dict[i]
-    word_brute,score_brute = results_bute[i]
-    print(f"{word_dict.strip()}: \t {score_dict} \t\t {word_brute.strip()}: \t {score_brute}")
+    word,score = results[i]
+    print(f"{word.strip()}: \t {score} ")
