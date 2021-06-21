@@ -52,19 +52,20 @@ def load_dictionary(filename='usa.txt'):
         dictionary_handle.close()
     return dictionary
 
+if __name__ == "__main__":
 
-search_string = sys.argv[1].strip()
-dictionary = load_dictionary()
-results = dictionary.search(search_string,4)
+    search_string = sys.argv[1].strip()
+    dictionary = load_dictionary()
+    results = dictionary.search(search_string,4)
 
-results.sort(key= lambda result_tuple: result_tuple[1])
-print(f'Search String: {search_string}')
-print(f'Number dictionary results: {len(results)}')
-print(f'{"-"*20}')
-num_results_to_display = min(25,len(results))
-for i in range(0,num_results_to_display):
-    word,score = results[i]
-    word = word.strip()
-    print(f"{word:15}  {score} ")
+    results.sort(key= lambda result_tuple: result_tuple[1])
+    print(f'Search String: {search_string}')
+    print(f'Number dictionary results: {len(results)}')
+    print(f'{"-"*20}')
+    num_results_to_display = min(25,len(results))
+    for i in range(0,num_results_to_display):
+        word,score = results[i]
+        word = word.strip()
+        print(f"{word:15}  {score} ")
 
 
