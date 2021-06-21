@@ -2,7 +2,8 @@ from datastructures.bk_tree import BKTree
 from edit_distance import levenshtein_distance
 import random
 import sys
-import timeit
+import curses
+from curses import ascii
 import pickle
 
 '''
@@ -52,8 +53,54 @@ def load_dictionary(filename='usa.txt'):
         dictionary_handle.close()
     return dictionary
 
-if __name__ == "__main__":
+def c_main(stdscr):
+    stdscr.keypad(True)
+    word_window = curses.newwin(1,curses.COLS,0,0)
+    
+    results_window = curses.newwin(30,40,2,5)
+    dictionary = load_dictionary()
+    word = ''
+    while True:
+        character = stdscr.getch()
+        if curses.ascii.iscntrl(character):
+            if character == curses.ascii.ESC:
+                break
+            elif character in (curses.KEY_ENTER,10,13):
+                pass
+               
+            elif character in (curses.KEY_BACKSPACE,127): #backaspce
+                word = word[:-1]
+        elif curses.ascii.isprint(character):
+            character_to_s = chr(character)
+            
+            if len(word) < curses.COLS:
+                word += character_to_s
+            else:
+                  word = word[1:] + character_to_s
 
+            results = dictionary.search(word,3,[])
+            results.sort(key=lambda results: results[1])
+            results_max = 25 if len(results) > 25 else len(results)
+            results_window.clear()
+            results_window.addstr(0,1,word)
+            for i in range(0,results_max -1):
+                results_window.addstr(i+1,1,results[i][0])
+                results_window.border()
+                results_window.refresh()
+
+        word_window.clear()
+       
+        word_window.addstr(word)
+        
+        word_window.refresh()
+    return 0
+
+def main():
+    return curses.wrapper(c_main)
+
+if __name__ == "__main__":
+    exit(main())
+'''
     search_string = sys.argv[1].strip()
     dictionary = load_dictionary()
     results = dictionary.search(search_string,4)
@@ -68,4 +115,4 @@ if __name__ == "__main__":
         word = word.strip()
         print(f"{word:15}  {score} ")
 
-
+'''
