@@ -64,6 +64,7 @@ def c_main(stdscr):
     word = ''
     while True:
         character = stdscr.getch()
+        word_changed = False
         if curses.ascii.iscntrl(character):
             if character == curses.ascii.ESC:
                 break
@@ -72,14 +73,17 @@ def c_main(stdscr):
                
             elif character in (curses.KEY_BACKSPACE,127): #backaspce
                 word = word[:-1]
+                word_changed = True
         elif curses.ascii.isprint(character):
             character_to_s = chr(character)
-            
+            word_changed = True
             if len(word) < curses.COLS:
                 word += character_to_s
             else:
                   word = word[1:] + character_to_s
             
+        #update spell check list if word has changed  
+        if word_changed:
             results = dictionary.search(word,3,[])  
             results.sort(key=lambda results: results[1])
             results_max = results_window_height if len(results) > results_window_height else len(results)
