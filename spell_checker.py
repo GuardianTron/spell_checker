@@ -56,8 +56,10 @@ def load_dictionary(filename='usa.txt'):
 def c_main(stdscr):
     stdscr.keypad(True)
     word_window = curses.newwin(1,curses.COLS,0,0)
+    results_window_height = curses.LINES - 1
+    results_window = curses.newwin(results_window_height,40,2,5)
     
-    results_window = curses.newwin(30,40,2,5)
+
     dictionary = load_dictionary()
     word = ''
     while True:
@@ -77,16 +79,17 @@ def c_main(stdscr):
                 word += character_to_s
             else:
                   word = word[1:] + character_to_s
-
-            results = dictionary.search(word,3,[])
+            
+            results = dictionary.search(word,3,[])  
             results.sort(key=lambda results: results[1])
-            results_max = 25 if len(results) > 25 else len(results)
+            results_max = results_window_height if len(results) > results_window_height else len(results)
             results_window.clear()
             results_window.addstr(0,1,word)
             for i in range(0,results_max -1):
                 results_window.addstr(i+1,1,results[i][0])
                 results_window.border()
                 results_window.refresh()
+                
 
         word_window.clear()
        
