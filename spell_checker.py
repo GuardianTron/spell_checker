@@ -54,12 +54,11 @@ def load_dictionary(filename='usa.txt'):
     return dictionary
 
 def c_main(stdscr):
-    stdscr.keypad(True)
     word_window = curses.newwin(1,curses.COLS,0,0)
     results_window_height = curses.LINES - 1
     results_window = curses.newwin(results_window_height,40,2,5)
-    
-
+    curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
+    results_window.bkgd(' ',curses.color_pair(1))
     dictionary = load_dictionary()
     word = ''
     while True:
@@ -96,6 +95,7 @@ def c_main(stdscr):
                 
 
         word_window.clear()
+        
        
         word_window.addstr(word)
         
