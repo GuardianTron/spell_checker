@@ -1,5 +1,6 @@
 from datastructures.bk_tree import BKTree
 from edit_distance import levenshtein_distance
+from threading import Lock
 import random
 import sys
 import curses
@@ -55,8 +56,10 @@ def load_dictionary(filename='usa.txt'):
         dictionary_handle.close()
     return dictionary
 
+
+
 def c_main(stdscr):
-    stdscr.timeout(1)
+    stdscr.nodelay(1)
     word_window = curses.newwin(2,curses.COLS,0,0)
     results_window_height = curses.LINES - 1
     results_window = curses.newwin(results_window_height,40,2,5)
@@ -70,6 +73,7 @@ def c_main(stdscr):
     while True:
         character = stdscr.getch()
         word_changed = False
+        list_updated = False
         if curses.ascii.iscntrl(character):
             if character == curses.ascii.ESC:
                 break
@@ -101,6 +105,12 @@ def c_main(stdscr):
             results = result.item
             if last_update > update_time:
                 last_update = update_time
+                while not results_pqueue.empty():
+                    result = results_pqueue.get()
+                    if result.priority < last_update:
+                        last_update = result.priority
+                        results = result.item
+
                 results.sort(key=lambda results: results[1])
                 results_max = results_window_height if len(results) > results_window_height else len(results)
                 results_window.clear()
@@ -109,17 +119,16 @@ def c_main(stdscr):
                     results_window.addstr(i+1,1,results[i][0])
                     results_window.border()
                     results_window.refresh()
-            while not results_pqueue.empty():
-                results_pqueue.get()
             
-
-        word_window.clear()
+            
+        if list_updated or word_changed:
+            word_window.clear()
         
        
-        word_window.addstr(0,0,word)
-        word_window.addstr(1,0,str(results_pqueue.qsize()))
+            word_window.addstr(0,0,word)
+ 
         
-        word_window.refresh()
+            word_window.refresh()
     return 0
 
 def main():
@@ -127,19 +136,4 @@ def main():
 
 if __name__ == "__main__":
     exit(main())
-'''
-    search_string = sys.argv[1].strip()
-    dictionary = load_dictionary()
-    results = dictionary.search(search_string,4)
 
-    results.sort(key= lambda result_tuple: result_tuple[1])
-    print(f'Search String: {search_string}')
-    print(f'Number dictionary results: {len(results)}')
-    print(f'{"-"*20}')
-    num_results_to_display = min(25,len(results))
-    for i in range(0,num_results_to_display):
-        word,score = results[i]
-        word = word.strip()
-        print(f"{word:15}  {score} ")
-
-'''
