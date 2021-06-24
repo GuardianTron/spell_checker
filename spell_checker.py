@@ -4,6 +4,8 @@ import random
 import sys
 import curses
 from curses import ascii
+from queue import PriorityQueue
+from threaded_search_runner import SearchRunner
 import pickle
 
 '''
@@ -54,13 +56,17 @@ def load_dictionary(filename='usa.txt'):
     return dictionary
 
 def c_main(stdscr):
-    word_window = curses.newwin(1,curses.COLS,0,0)
+    stdscr.timeout(1)
+    word_window = curses.newwin(2,curses.COLS,0,0)
     results_window_height = curses.LINES - 1
     results_window = curses.newwin(results_window_height,40,2,5)
     curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
     results_window.bkgd(' ',curses.color_pair(1))
     dictionary = load_dictionary()
     word = ''
+    results_pqueue = PriorityQueue()
+    threads = []
+    last_update = 0
     while True:
         character = stdscr.getch()
         word_changed = False
@@ -83,21 +89,35 @@ def c_main(stdscr):
             
         #update spell check list if word has changed  
         if word_changed:
-            results = dictionary.search(word,3,[])  
-            results.sort(key=lambda results: results[1])
-            results_max = results_window_height if len(results) > results_window_height else len(results)
-            results_window.clear()
-            results_window.addstr(0,1,word)
-            for i in range(0,results_max -1):
-                results_window.addstr(i+1,1,results[i][0])
-                results_window.border()
-                results_window.refresh()
+            search = SearchRunner(dictionary,word,results_pqueue,daemon=True)
+            threads.append(search)
+            search.start()
+            #results = dictionary.search(word,3,[])  
+            
                 
+        if not results_pqueue.empty():
+            result = results_pqueue.get()
+            update_time = result.priority
+            results = result.item
+            if last_update > update_time:
+                last_update = update_time
+                results.sort(key=lambda results: results[1])
+                results_max = results_window_height if len(results) > results_window_height else len(results)
+                results_window.clear()
+                results_window.addstr(0,1,word)
+                for i in range(0,results_max -1):
+                    results_window.addstr(i+1,1,results[i][0])
+                    results_window.border()
+                    results_window.refresh()
+            while not results_pqueue.empty():
+                results_pqueue.get()
+            
 
         word_window.clear()
         
        
-        word_window.addstr(word)
+        word_window.addstr(0,0,word)
+        word_window.addstr(1,0,str(results_pqueue.qsize()))
         
         word_window.refresh()
     return 0
