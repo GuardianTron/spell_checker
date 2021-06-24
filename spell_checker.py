@@ -61,7 +61,7 @@ def load_dictionary(filename='usa.txt'):
 def c_main(stdscr):
     stdscr.nodelay(1)
     word_window = curses.newwin(2,curses.COLS,0,0)
-    results_window_height = curses.LINES - 1
+    results_window_height = curses.LINES - 2
     results_window = curses.newwin(results_window_height,40,2,5)
     curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
     results_window.bkgd(' ',curses.color_pair(1))
