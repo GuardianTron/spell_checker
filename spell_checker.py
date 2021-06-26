@@ -1,4 +1,4 @@
-from datastructures.bk_tree import BKTree
+from datastructures.bk_tree import BKTreeThreaded
 from edit_distance import levenshtein_distance
 from threading import Lock
 import random
@@ -47,7 +47,7 @@ def load_dictionary(filename='usa.txt'):
         dictionary = pickle.load(dictionary_handle)
         dictionary_handle.close()
     except:
-        dictionary = BKTree(levenshtein_distance)
+        dictionary = BKTreeThreaded(levenshtein_distance)
 
         for word in words:
             dictionary.add_element(word.strip())

@@ -51,6 +51,16 @@ class  NodeThreaded(Node):
         with self._insert_lock:
             super().add_child(child_node, metric_function)
 
+    #Remove locks from pickling
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_insert_lock']
+        return state
+    
+    def __setstate__(self,state):
+        self.__dict__.update(state)
+        self._insert_lock = Lock()
+    
 
 
 class BKTree:
@@ -87,13 +97,14 @@ class BKTree:
 
 class BKTreeThreaded(BKTree):
 
+    ''' A BK Tree implementation that allows for aborting expired searches early.'''
+
     def __init__(self,metric_function,preempt_search = True):
-        self._insert_ock = Lock()
         self._search_term_lock = Lock()
         self._preempt_search = preempt_search
         self._current_search = None
 
-        super.__init__(metric_function)
+        super().__init__(metric_function)
 
     def search(self,search_term,tolerance,results=[]):
         if self._preempt_search:
@@ -108,3 +119,15 @@ class BKTreeThreaded(BKTree):
 
     def _new_node(self, element: str, *args, **kwargs) -> Node:
         return NodeThreaded(element,self)
+
+    #Handle errors from pickling the lock objects
+    def __getstate__(self):
+       state = self.__dict__.copy()
+       del state['_current_search']
+       del state['_search_term_lock']
+       return state
+
+    def __setstate__(self,state):
+        self.__dict__.update(state)
+        self._current_search = None
+        self._search_term_lock = Lock()
