@@ -27,7 +27,23 @@ class Node:
             if dist >= min_search_distance and dist <= max_search_distance:
                 self._children[dist].search(search_term,tolerance,metric_function,results_list)
 
-        
+
+class  NodeThreaded(Node):
+
+    def __init__(self,payload,parent_tree):
+        self._parent_tree = parent_tree
+        super().__init__(payload)
+    
+    '''
+        Search through the tree for matches within tolerance. If another thread
+        changes the term being searched, the search will abort early.
+    '''
+
+    def search(self,search_term,tolerance,metric_function,results_list):
+        #utilizes BKTreeTreaded.current_search's lock to handling locking
+        if self._parent_tree.current_search and self._parent_tree.current_search == search_term:
+            super().search(search_term,tolerance,metric_function,results_list)
+
 
 
 class BKTree:
@@ -62,7 +78,7 @@ class BKTree:
 
 
 from threading import Lock
-class BKTreeThread(BKTree):
+class BKTreeThreaded(BKTree):
 
     def __init__(self,metric_function,preempt_search = True):
         self._insert_ock = Lock()
