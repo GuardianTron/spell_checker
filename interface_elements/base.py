@@ -64,14 +64,15 @@ class Window(ABC):
             Subclasses should create this window themselves.
         '''
         self._window = curses_window
+        self._draw_this_cycle = False
 
     def flag_for_redraw(self):
         ''' Will force redraw of window in event of resize.'''
-        self._draw_element = True
+        self._draw_this_cycle = True
 
     def draw(self):
         '''Called by screen class to draw the element. Override _draw_element to implement acutal draw'''
-        if(self.draw_this_cycle):
+        if(self._draw_this_cycle):
             self._window.clear()
             self._draw_element()
             self._window.refresh()
