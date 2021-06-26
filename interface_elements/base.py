@@ -58,6 +58,13 @@ class Window(ABC):
         windows.
     '''
 
+    def __init__(self,curses_window):
+        '''
+            Takes an ncurses window object to operate on.
+            Subclasses should create this window themselves.
+        '''
+        self._window = curses_window
+
     def flag_for_redraw(self):
         ''' Will force redraw of window in event of resize.'''
         self._draw_element = True
@@ -65,7 +72,9 @@ class Window(ABC):
     def draw(self):
         '''Called by screen class to draw the element. Override _draw_element to implement acutal draw'''
         if(self.draw_this_cycle):
+            self._window.clear()
             self._draw_element()
+            self._window.refresh()
             self._draw_this_cycle = False
 
 
