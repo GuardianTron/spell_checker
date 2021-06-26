@@ -99,3 +99,5 @@ class BKTreeThreaded(BKTree):
         with self._search_term_lock:
             return self._current_search
 
+    def _new_node(self, element: str, *args, **kwargs) -> Node:
+        return NodeThreaded(element,self)
