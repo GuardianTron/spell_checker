@@ -123,11 +123,12 @@ def c_main(stdscr):
         if list_updated or word_changed:
             word_window.clear()
         
-       
             word_window.addstr(0,0,word)
- 
-        
+               
+
             word_window.refresh()
+        cursor_x = len(word) if len(word) < curses.COLS - 1 else curses.COLS - 1
+        stdscr.move(0,cursor_x) 
     return 0
 
 def main():
