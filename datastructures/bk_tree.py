@@ -61,4 +61,25 @@ class BKTree:
         return Node(element)
 
 
+from threading import Lock
+class BKTreeThread(BKTree):
+
+    def __init__(self,metric_function,preempt_search = True):
+        self._insert_ock = Lock()
+        self._search_term_lock = Lock()
+        self._preempt_search = preempt_search
+        self._current_search = None
+
+        super.__init__(metric_function)
+
+    def search(self,search_term,tolerance,results=[]):
+        if self._preempt_search:
+            with self._search_term_lock:
+                self._current_search = search_term
+        return super().search(search_term,tolerance,results)
+
+    @property
+    def current_search(self):
+        with self._search_term_lock:
+            return self._current_search
 
