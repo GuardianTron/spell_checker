@@ -1,4 +1,5 @@
 from datastructures.bk_tree import BKTreeThreaded
+from datastructures.priority_queue_updatedable import PriorityQueueUpdateable
 from interface_elements.spell_elements import ResultsWindow
 from edit_distance import levenshtein_distance
 from threading import Lock
@@ -6,7 +7,6 @@ import random
 import sys
 import curses
 from curses import ascii
-from queue import PriorityQueue
 from threaded_search_runner import SearchRunner
 import pickle
 
@@ -73,9 +73,8 @@ def c_main(stdscr):
 
        
     word = ''
-    results_pqueue = PriorityQueue()
+    results_pqueue = PriorityQueueUpdateable()
     threads = []
-    last_update = 0
     while True:
         character = stdscr.getch()
         word_changed = False
@@ -105,22 +104,12 @@ def c_main(stdscr):
             #results = dictionary.search(word,3,[])  
             
                 
-        if not results_pqueue.empty():
-            result = results_pqueue.get()
-            update_time = result.priority
-            results = result.item
-            if last_update > update_time:
-                last_update = update_time
-                while not results_pqueue.empty():
-                    result = results_pqueue.get()
-                    if result.priority < last_update:
-                        last_update = result.priority
-                        results = result.item
-                
-                #sort by levenshtein distance then remove 
-                results.sort(key=lambda results: results[1])
-                results_window.results = [result[0] for result in results]
-                results_window.draw()
+        if results_pqueue.has_new_results():
+            results = results_pqueue.get_latest_result()
+            #sort by levenshtein distance then remove 
+            results.sort(key=lambda results: results[1])
+            results_window.results = [result[0] for result in results]
+            results_window.draw()
             
             
         if list_updated or word_changed:
