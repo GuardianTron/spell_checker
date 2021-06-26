@@ -1,4 +1,5 @@
 from datastructures.bk_tree import BKTreeThreaded
+from interface_elements.spell_elements import ResultsWindow
 from edit_distance import levenshtein_distance
 from threading import Lock
 import random
@@ -61,10 +62,12 @@ def load_dictionary(filename='usa.txt'):
 def c_main(stdscr):
     stdscr.nodelay(1)
     word_window = curses.newwin(2,curses.COLS,0,0)
+    #set up results window
     results_window_height = curses.LINES - 2
-    results_window = curses.newwin(results_window_height,40,2,5)
     curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
-    results_window.bkgd(' ',curses.color_pair(1))
+    results_window = ResultsWindow(results_window_height,40,2,5,1)
+    
+ 
     dictionary = load_dictionary()
     word = ''
     results_pqueue = PriorityQueue()
@@ -110,15 +113,11 @@ def c_main(stdscr):
                     if result.priority < last_update:
                         last_update = result.priority
                         results = result.item
-
+                
+                #sort by levenshtein distance then remove 
                 results.sort(key=lambda results: results[1])
-                results_max = results_window_height if len(results) > results_window_height else len(results)
-                results_window.clear()
-                results_window.addstr(0,1,word)
-                for i in range(0,results_max -1):
-                    results_window.addstr(i+1,1,results[i][0])
-                    results_window.border()
-                    results_window.refresh()
+                results_window.results = [result[0] for result in results]
+                results_window.draw()
             
             
         if list_updated or word_changed:
