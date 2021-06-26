@@ -67,8 +67,11 @@ def c_main(stdscr):
     curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
     results_window = ResultsWindow(results_window_height,40,2,5,1)
     
-    dictionary = load_dictionary(sys.argv[1]) if len(sys.argv) > 1 else load_dictionary()
+    new_text_file_path = sys.argv[1] if len(sys.argv) > 1 else None
+   
+    dictionary = load_dictionary(new_text_file_path)
 
+       
     word = ''
     results_pqueue = PriorityQueue()
     threads = []
@@ -132,8 +135,14 @@ def c_main(stdscr):
     return 0
 
 def main():
-    return curses.wrapper(c_main)
-
+    try:
+        return curses.wrapper(c_main)
+    except FileNotFoundError:
+        if len(sys.argv) > 1:
+            print('The text file you attempted to upload could not be found.')
+        else:
+            print('The dictionary could not be found. Please select file to upload.')
 if __name__ == "__main__":
     exit(main())
+
 
