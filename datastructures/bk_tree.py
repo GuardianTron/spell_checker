@@ -57,7 +57,7 @@ class BKTree:
         Provides hook to allow subclasses to replace 
         the type of node created.
     '''
-    def _new_node(self,element:str) -> Node:
+    def _new_node(self,element:str,*args,**kwargs) -> Node:
         return Node(element)
 
 
