@@ -42,9 +42,9 @@ class BKTree:
     def add_element(self,element):
         '''Adds an element to the tree.'''
         if self._root is None:
-            self._root = Node(element)
+            self._root = self._new_node(element)
         else:
-            self._root.add_child(Node(element),self._metric_function)
+            self._root.add_child(self._new_node(element),self._metric_function)
 
     def search(self,search_term,tolerance,results_list=[]):
         '''Returns all items within the tree within a given tolerance to search_term.'''
@@ -52,3 +52,13 @@ class BKTree:
             raise LookupError('BKTree has no children.')
         self._root.search(search_term,tolerance,self._metric_function,results_list)
         return results_list
+
+    '''
+        Provides hook to allow subclasses to replace 
+        the type of node created.
+    '''
+    def _new_node(self,element:str) -> Node:
+        return Node(element)
+
+
+
