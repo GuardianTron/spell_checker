@@ -25,7 +25,7 @@ Usage:
 Pass string to be checked as parameter.
 '''
 
-def load_dictionary(filename='usa.txt'):
+def load_dictionary(filename=None):
     '''
     Loads the dictionary from file and stores in BKTree
 
@@ -40,23 +40,23 @@ def load_dictionary(filename='usa.txt'):
 
     Return: BKTree
     '''
-    with open('usa.txt','r') as words_file:
-        words = words_file.readlines()
+    if filename is not None:
+        return create_dictionary_from_file(filename)
+    else:
+        with open('dictionary.pbk','rb') as dict_file:
+            return pickle.load(dict_file)
+
+def create_dictionary_from_file(filename:str):
+    with open(filename,'r') as word_file:
+        words = word_file.readlines()
+    #prevent recursion depth overflow
     random.shuffle(words)
-    try:
-        dictionary_handle = open('dictionary','rb')
-        dictionary = pickle.load(dictionary_handle)
-        dictionary_handle.close()
-    except:
-        dictionary = BKTreeThreaded(levenshtein_distance)
-
-        for word in words:
-            dictionary.add_element(word.strip())
-        dictionary_handle = open('dictionary','wb')
-        pickle.dump(dictionary,dictionary_handle)
-        dictionary_handle.close()
+    dictionary = BKTreeThreaded(levenshtein_distance)
+    for word in words:
+        dictionary.add_element(word.strip())
+    with open('dictionary.pbk','wb') as dict_file:
+        pickle.dump(dictionary,dict_file)
     return dictionary
-
 
 
 def c_main(stdscr):
@@ -67,8 +67,8 @@ def c_main(stdscr):
     curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
     results_window = ResultsWindow(results_window_height,40,2,5,1)
     
- 
-    dictionary = load_dictionary()
+    dictionary = load_dictionary(sys.argv[1]) if len(sys.argv) > 1 else load_dictionary()
+
     word = ''
     results_pqueue = PriorityQueue()
     threads = []
