@@ -127,7 +127,7 @@ class MenuWindow(Window):
             color = self._base_color
             if option == self._selected_option:
                 color = self._highlight_color
-            self._window.addstr(option - start_index + self._start_line,self._start_col,self._menu_options[option],color)
+            self._window.addstr(option - start_index + self._start_line,self._start_col,self._menu_options[option].ljust(self._width,' '),color)
         
         #reset color and draw border
         self._window.bkgd(' ',self._base_color)
