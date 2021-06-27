@@ -167,6 +167,7 @@ class SpellCheckerScreen(Screen):
             results = self._results_pqueue.get_latest_result()
             results.sort(key=lambda results: results[1])
             self._results_window.results = [result[0] for result in results]
+            
 
     def draw(self,stdscr):
         super().draw(stdscr)

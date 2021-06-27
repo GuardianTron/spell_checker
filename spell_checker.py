@@ -1,11 +1,12 @@
+from typing import Dict
 from datastructures.bk_tree import BKTreeThreaded
 from interface_elements.spell_elements import SpellCheckerScreen,SelectLanguageScreen
 from edit_distance import levenshtein_distance
-import random
+from dictionary_loader import DictionaryLoader
 import sys
 import curses
 from curses import ascii
-import pickle
+
 
 '''
 Developer: Anthony Feeney
@@ -22,38 +23,7 @@ Usage:
 Pass string to be checked as parameter.
 '''
 
-def load_dictionary(filename=None):
-    '''
-    Loads the dictionary from file and stores in BKTree
 
-    This function will load dictionary database from a 
-    pickled BK tree if found.
-    If not found, a text file consisting of words separated by \\n 
-    newline characters will loaded and and processed into a BK tree
-    which will then be pickled.   
-
-    Keyword arguments:
-    filename --- Name of the text file containing the dictionary
-
-    Return: BKTree
-    '''
-    if filename is not None:
-        return create_dictionary_from_file(filename)
-    else:
-        with open('dictionary.pbk','rb') as dict_file:
-            return pickle.load(dict_file)
-
-def create_dictionary_from_file(filename:str):
-    with open(filename,'r') as word_file:
-        words = word_file.readlines()
-    #prevent recursion depth overflow
-    random.shuffle(words)
-    dictionary = BKTreeThreaded(levenshtein_distance)
-    for word in words:
-        dictionary.add_element(word.strip())
-    with open('dictionary.pbk','wb') as dict_file:
-        pickle.dump(dictionary,dict_file)
-    return dictionary
 
 
 def c_main(stdscr):
@@ -61,11 +31,15 @@ def c_main(stdscr):
 
     
     new_text_file_path = sys.argv[1] if len(sys.argv) > 1 else None
-   
-    dictionary = load_dictionary(new_text_file_path)
+    dictionary_loader = DictionaryLoader()
+    if new_text_file_path:
+        dictionary = dictionary_loader.create_dictionary(new_text_file_path)
+    else:
+        dictionaries = dictionary_loader.get_dictionary_list()
+        dictionary = dictionary_loader.load_dictionary(dictionaries[0])
     screen_stack = []
-    #spell_screen = SpellCheckerScreen(screen_stack,dictionary)
-    spell_screen = SelectLanguageScreen(screen_stack)
+    spell_screen = SpellCheckerScreen(screen_stack,dictionary)
+    #spell_screen = SelectLanguageScreen(screen_stack)
     screen_stack.append(spell_screen)
     while True:
         character = stdscr.getch()
