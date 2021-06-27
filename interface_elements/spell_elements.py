@@ -62,6 +62,68 @@ class InputWindow(Window):
     def capture_cursor(self,stdscr):
         cursor_x = len(self._word) if len(self._word) < curses.COLS - 1 else curses.COLS - 1
         stdscr.move(self._y,cursor_x)
+
+
+class MenuWindow(Window):
+    
+    def __init__(self,height:int,width:int,y:int,x:int,color_pair_standard:int,color_pair_highlight:int):
+        self._height = height
+        self._width = width
+        super().__init__(curses.newwin(height,width,y,x))
+
+        self._base_color = curses.color_pair(color_pair_standard)
+        self._highlight_color = curses.color_pair(color_pair_highlight)
+
+        self._menu_options = []
+        self._selected_option = 0
+
+    @property
+    def selected(self):
+        return self._selected_option
+
+    @selected.setter
+    def selected(self,option:int):
+        if option > len(self._menu_options):
+            raise ValueError('The selected option exceeds the number set within the menu.')
+        self._selected_option = option
+
+    def add_menu_option(self,text:str,position:int = None):
+        if position is None:
+            self._menu_options.append(text)
+        else:
+            self._menu_options[position] = text 
+    
+    def remove_menu_option(self,position:int=None,text:str=None):
+        if position is None and text is None:
+            raise ValueError('Must set either a position or text to be removed.')
+        elif position is not None:
+            self._menu_options.pop(position)
+        else:
+            self._menu_options.remove(text)
+
+    def __len__(self):
+        return len(self._menu_options)        
+
+    def _draw_element(self):
+        num_lines_to_draw = self._height if len(self._menu_options) > self._height else len(self._menu_options)
+        bottom_line_number = num_lines_to_draw - 1
+        #determine the range to draw in the menu
+        if self._selected_option > bottom_line_number: #selected option below visible area, draw at bottom
+            draw_range = range(self._selected_option - bottom_line_number,self._selected_option)
+        else: #draw options 0 - bottom_line_number
+            draw_range = range(0,bottom_line_number)
+        
+        for option in draw_range:
+            if option == self._selected_option:
+                self._window.bkgd(' ',self._highlight_color)
+            else:
+                self._window.bkgd(' ',self._base_color)
+            self._window.addstr(option,0,self._menu_options[option])
+        
+        #reset color and draw border
+        self._window.bkgd(' ',self._base_color)
+        self._window.border()
+
     
 class SpellCheckerScreen(Screen):
 
