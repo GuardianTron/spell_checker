@@ -69,7 +69,8 @@ class MenuWindow(Window):
     def __init__(self,height:int,width:int,y:int,x:int,color_pair_standard:int,color_pair_highlight:int):
         self._height = height
         self._width = width
-        super().__init__(curses.newwin(height,width,y,x))
+        #height and width are added to as to account for borders
+        super().__init__(curses.newwin(height + 2,width + 2,y,x))
 
         self._base_color = curses.color_pair(color_pair_standard)
         self._highlight_color = curses.color_pair(color_pair_highlight)
@@ -83,15 +84,19 @@ class MenuWindow(Window):
 
     @selected.setter
     def selected(self,option:int):
-        if option > len(self._menu_options):
-            raise ValueError('The selected option exceeds the number set within the menu.')
+        if option >= len(self._menu_options):
+            option = len(self._menu_options) -1
+        elif option < 0:
+            option = 0
         self._selected_option = option
+        self.flag_for_redraw()
 
     def add_menu_option(self,text:str,position:int = None):
         if position is None:
             self._menu_options.append(text)
         else:
             self._menu_options[position] = text 
+        self.flag_for_redraw()
     
     def remove_menu_option(self,position:int=None,text:str=None):
         if position is None and text is None:
@@ -100,30 +105,38 @@ class MenuWindow(Window):
             self._menu_options.pop(position)
         else:
             self._menu_options.remove(text)
+        self.flag_for_redraw()
 
     def __len__(self):
         return len(self._menu_options)        
 
     def _draw_element(self):
         num_lines_to_draw = self._height if len(self._menu_options) > self._height else len(self._menu_options)
-        bottom_line_number = num_lines_to_draw - 1
+        bottom_line_number = num_lines_to_draw
+        start_index = 0 
         #determine the range to draw in the menu
-        if self._selected_option > bottom_line_number: #selected option below visible area, draw at bottom
-            draw_range = range(self._selected_option - bottom_line_number,self._selected_option)
+        if self._selected_option >= bottom_line_number: #selected option below visible area, draw at bottom
+            start_index = self._selected_option - bottom_line_number + 1
+            draw_range = range(start_index,self._selected_option + 1)
+            
         else: #draw options 0 - bottom_line_number
             draw_range = range(0,bottom_line_number)
         
         for option in draw_range:
+            color = self._base_color
             if option == self._selected_option:
-                self._window.bkgd(' ',self._highlight_color)
-            else:
-                self._window.bkgd(' ',self._base_color)
-            self._window.addstr(option,0,self._menu_options[option])
+                color = self._highlight_color
+            self._window.addstr(option - start_index + 1,1,str(option),color)
         
         #reset color and draw border
         self._window.bkgd(' ',self._base_color)
         self._window.border()
 
+    def process_input(self,character):
+        if character == curses.KEY_UP:
+            self.selected -= 1
+        elif character == curses.KEY_DOWN:
+            self.selected += 1
     
 class SpellCheckerScreen(Screen):
 
@@ -157,3 +170,21 @@ class SpellCheckerScreen(Screen):
     def draw(self,stdscr):
         super().draw(stdscr)
         self._input_window.capture_cursor(stdscr)
+
+
+class SelectLanguageScreen(Screen): 
+
+    def __init__(self,window_stack:list):
+        super().__init__(window_stack)
+
+        language_list = ['A','B','C','D','E','G']
+        curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
+        curses.init_pair(2,curses.COLOR_BLACK,curses.COLOR_GREEN)
+        self._menu_window = MenuWindow(4,20,3,3,1,2)
+        self.register_window(self._menu_window)
+
+        for language in language_list:
+            self._menu_window.add_menu_option(language)
+    
+    def process_input(self, character):
+        self._menu_window.process_input(character)
