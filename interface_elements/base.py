@@ -56,7 +56,7 @@ class Screen(ABC):
         pass
 
     def exit(self):
-        pass
+        self._stdscr.clear()
 
 
 class Window(ABC):

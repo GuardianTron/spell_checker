@@ -39,8 +39,8 @@ def c_main(stdscr):
         dictionaries = dictionary_loader.get_dictionary_list()
         dictionary = dictionary_loader.load_dictionary(dictionaries[0])
     screen_stack = ScreenStack()
-    spell_screen = SpellCheckerScreen(screen_stack,stdscr,dictionary)
-    #spell_screen = SelectLanguageScreen(screen_stack,stdscr)
+    #spell_screen = SpellCheckerScreen(screen_stack,stdscr,dictionary)
+    spell_screen = SelectLanguageScreen(screen_stack,stdscr)
     screen_stack.append(spell_screen)
     while True:
         character = stdscr.getch()

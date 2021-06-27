@@ -196,6 +196,12 @@ class SelectLanguageScreen(Screen):
     
     def process_input(self, character):
         self._menu_window.process_input(character)
+        if character in (curses.KEY_ENTER,10,13):
+            dictionary_to_load = self._dictionaries[self._menu_window.selected]
+            dictionary = self._dictionary_loader.load_dictionary(dictionary_to_load)
+            spellchecker = SpellCheckerScreen(self._window_stack,self._stdscr,dictionary)
+            self._window_stack.pop()
+            self._window_stack.append(spellchecker)
 
     def load_dictionary_list(self):
             self._dictionaries = self._dictionary_loader.get_dictionary_list()
@@ -210,4 +216,5 @@ class SelectLanguageScreen(Screen):
         curses.curs_set(0)
 
     def exit(self):
+        super().exit()
         curses.curs_set(1)
