@@ -1,13 +1,10 @@
 from datastructures.bk_tree import BKTreeThreaded
-from datastructures.priority_queue_updatedable import PriorityQueueUpdateable
 from interface_elements.spell_elements import SpellCheckerScreen
 from edit_distance import levenshtein_distance
-from threading import Lock
 import random
 import sys
 import curses
 from curses import ascii
-from threaded_search_runner import SearchRunner
 import pickle
 
 '''
