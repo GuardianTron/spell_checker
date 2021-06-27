@@ -35,7 +35,7 @@ class Screen(ABC):
             #already removed so no need to worry
             pass 
 
-    def process_input(self,character,stdscr):
+    def process_input(self,character):
         '''Override this to create the controller for the screen.'''
         pass
     
