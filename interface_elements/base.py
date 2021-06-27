@@ -39,8 +39,15 @@ class Screen(ABC):
         '''Override this to create the controller for the screen.'''
         pass
     
-    def draw(self):
-        '''Called by application to draw the windows.'''
+    def draw(self,stdscr):
+        '''
+            Called by application to draw the windows.
+            Takes standard screen curses object as a parameter so 
+            that subclasses can use it for clean up operations such
+            as fixing the cursor. 
+            Not used here but docmuneted for consistency in caller
+            which will pass this to all instances.
+        '''
         for window in self._windows:
             window.draw()
 

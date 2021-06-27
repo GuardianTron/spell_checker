@@ -76,11 +76,11 @@ def c_main(stdscr):
                 break
         
         screen_stack[-1].process_input(character)
-        screen_stack[-1].draw()
+        screen_stack[-1].draw(stdscr)
             
        
-        #cursor_x = len(word) if len(word) < curses.COLS - 1 else curses.COLS - 1
-        #stdscr.move(0,cursor_x) 
+
+        # 
     return 0
 
 def main():

@@ -33,6 +33,7 @@ class InputWindow(Window):
 
     def __init__(self,y:int,x:int,color_pair:int = None):
         super().__init__(curses.newwin(2,curses.COLS,y,x))
+        self._y = y
         if color_pair is not None:
             self._window.bkgd(' ',curses.color_pair(color_pair))
         self._word = ''
@@ -58,6 +59,9 @@ class InputWindow(Window):
     def _draw_element(self):
         self._window.addstr(0,0,self._word)
 
+    def capture_cursor(self,stdscr):
+        cursor_x = len(self._word) if len(self._word) < curses.COLS - 1 else curses.COLS - 1
+        stdscr.move(self._y,cursor_x)
     
 class SpellCheckerScreen(Screen):
 
@@ -87,3 +91,7 @@ class SpellCheckerScreen(Screen):
             results = self._results_pqueue.get_latest_result()
             results.sort(key=lambda results: results[1])
             self._results_window.results = [result[0] for result in results]
+
+    def draw(self,stdscr):
+        super().draw(stdscr)
+        self._input_window.capture_cursor(stdscr)
