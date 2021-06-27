@@ -1,6 +1,6 @@
 from datastructures.bk_tree import BKTreeThreaded
 from datastructures.priority_queue_updatedable import PriorityQueueUpdateable
-from interface_elements.spell_elements import ResultsWindow,InputWindow
+from interface_elements.spell_elements import SpellCheckerScreen
 from edit_distance import levenshtein_distance
 from threading import Lock
 import random
@@ -61,52 +61,26 @@ def create_dictionary_from_file(filename:str):
 
 def c_main(stdscr):
     stdscr.nodelay(1)
-    word_window = InputWindow(0,0)
-    #set up results window
-    results_window_height = curses.LINES - 2
-    curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
-    results_window = ResultsWindow(results_window_height,40,2,5,1)
+
     
     new_text_file_path = sys.argv[1] if len(sys.argv) > 1 else None
    
     dictionary = load_dictionary(new_text_file_path)
-
-       
-    word = ''
-    results_pqueue = PriorityQueueUpdateable()
-    threads = []
+    screen_stack = []
+    spell_screen = SpellCheckerScreen(screen_stack,dictionary)
+    screen_stack.append(spell_screen)
     while True:
         character = stdscr.getch()
-        word_changed = False
-        list_updated = False
         if curses.ascii.iscntrl(character):
             if character == curses.ascii.ESC:
                 break
-        word_window.process_input(character)
-        if word != word_window.text:
-            word = word_window.text
-            word_changed = True
+        
+        screen_stack[-1].process_input(character)
+        screen_stack[-1].draw()
             
-        #update spell check list if word has changed  
-        if word_changed:
-            search = SearchRunner(dictionary,word,results_pqueue,daemon=True)
-            threads.append(search)
-            search.start()
-            #results = dictionary.search(word,3,[])  
-            
-                
-        if results_pqueue.has_new_results():
-            results = results_pqueue.get_latest_result()
-            #sort by levenshtein distance then remove 
-            results.sort(key=lambda results: results[1])
-            results_window.results = [result[0] for result in results]
-            results_window.draw()
-            
-            
-        if list_updated or word_changed:
-            word_window.draw()
-        cursor_x = len(word) if len(word) < curses.COLS - 1 else curses.COLS - 1
-        stdscr.move(0,cursor_x) 
+       
+        #cursor_x = len(word) if len(word) < curses.COLS - 1 else curses.COLS - 1
+        #stdscr.move(0,cursor_x) 
     return 0
 
 def main():

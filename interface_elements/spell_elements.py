@@ -1,7 +1,9 @@
 import curses
 from curses import ascii
-from .base import Window
-
+from .base import Window,Screen
+from datastructures.bk_tree import BKTreeThreaded
+from datastructures.priority_queue_updatedable import PriorityQueueUpdateable
+from threaded_search_runner import SearchRunner
 class ResultsWindow(Window):
 
     def __init__(self,height:int,width:int,y:int,x:int,color_pair:int = None):
@@ -55,3 +57,33 @@ class InputWindow(Window):
 
     def _draw_element(self):
         self._window.addstr(0,0,self._word)
+
+    
+class SpellCheckerScreen(Screen):
+
+    def __init__(self,window_stack:list,dictionary:BKTreeThreaded):
+        super().__init__(window_stack)
+        self._input_window = InputWindow(0,0)
+        self.register_window(self._input_window)
+        curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
+        results_window_height = curses.LINES - 2
+        self._results_window = ResultsWindow(results_window_height,40,2,5,1)
+        self.register_window(self._results_window)
+        self._dictionary = dictionary
+        self._results_pqueue = PriorityQueueUpdateable()
+
+        self._current_word = ''
+
+    def process_input(self, character):
+                   
+
+        self._input_window.process_input(character)
+        if self._current_word != self._input_window.text:
+            self._current_word = self._input_window.text
+            search = SearchRunner(self._dictionary,self._current_word,self._results_pqueue,daemon=True)
+            search.start()
+
+        if self._results_pqueue.has_new_results():
+            results = self._results_pqueue.get_latest_result()
+            results.sort(key=lambda results: results[1])
+            self._results_window.results = [result[0] for result in results]
