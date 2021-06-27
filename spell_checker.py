@@ -1,6 +1,6 @@
 from datastructures.bk_tree import BKTreeThreaded
 from datastructures.priority_queue_updatedable import PriorityQueueUpdateable
-from interface_elements.spell_elements import ResultsWindow
+from interface_elements.spell_elements import ResultsWindow,InputWindow
 from edit_distance import levenshtein_distance
 from threading import Lock
 import random
@@ -61,7 +61,7 @@ def create_dictionary_from_file(filename:str):
 
 def c_main(stdscr):
     stdscr.nodelay(1)
-    word_window = curses.newwin(2,curses.COLS,0,0)
+    word_window = InputWindow(0,0)
     #set up results window
     results_window_height = curses.LINES - 2
     curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
@@ -82,19 +82,10 @@ def c_main(stdscr):
         if curses.ascii.iscntrl(character):
             if character == curses.ascii.ESC:
                 break
-            elif character in (curses.KEY_ENTER,10,13):
-                pass
-               
-            elif character in (curses.KEY_BACKSPACE,127): #backaspce
-                word = word[:-1]
-                word_changed = True
-        elif curses.ascii.isprint(character):
-            character_to_s = chr(character)
+        word_window.process_input(character)
+        if word != word_window.text:
+            word = word_window.text
             word_changed = True
-            if len(word) < curses.COLS:
-                word += character_to_s
-            else:
-                  word = word[1:] + character_to_s
             
         #update spell check list if word has changed  
         if word_changed:
@@ -113,12 +104,7 @@ def c_main(stdscr):
             
             
         if list_updated or word_changed:
-            word_window.clear()
-        
-            word_window.addstr(0,0,word)
-               
-
-            word_window.refresh()
+            word_window.draw()
         cursor_x = len(word) if len(word) < curses.COLS - 1 else curses.COLS - 1
         stdscr.move(0,cursor_x) 
     return 0
