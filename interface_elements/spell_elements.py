@@ -176,9 +176,9 @@ class SpellCheckerScreen(Screen):
             self._results_window.results = [result[0] for result in results]
             
 
-    def draw(self,stdscr):
-        super().draw(stdscr)
-        self._input_window.capture_cursor(stdscr)
+    def draw(self):
+        super().draw()
+        self._input_window.capture_cursor(self._stdscr)
 
 
 class SelectLanguageScreen(Screen): 
