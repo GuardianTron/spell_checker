@@ -41,6 +41,9 @@ class DictionaryLoader:
         with open(dictionary_file_path,'rb') as pickle_file:
             return pickle.load(pickle_file)
 
+    @property
+    def file_ext(self):
+        return self._file_ext
 
 
 

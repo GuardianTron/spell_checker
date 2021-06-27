@@ -4,6 +4,8 @@ from .base import Window,Screen
 from datastructures.bk_tree import BKTreeThreaded
 from datastructures.priority_queue_updatedable import PriorityQueueUpdateable
 from threaded_search_runner import SearchRunner
+from dictionary_loader import DictionaryLoader
+
 class ResultsWindow(Window):
 
     def __init__(self,height:int,width:int,y:int,x:int,color_pair:int = None):
@@ -117,7 +119,7 @@ class MenuWindow(Window):
         #important note: Drawing does not start at 0 within the window
         #but indexing does start at 0. Must compensate
         start_index = 0
-        end_index = self._height - 1
+        end_index = min(self._height,len(self._menu_options)) - 1
         #determine the range to draw in the menu
         if self._selected_option > end_index: #selected option below visible area, draw at bottom
             start_index = self._selected_option - self._height + 1 #+1 accounts for zero indexing
@@ -179,14 +181,17 @@ class SelectLanguageScreen(Screen):
     def __init__(self,window_stack:list):
         super().__init__(window_stack)
 
-        language_list = ['A','B','C','D','E','G']
+        self._dictionary_loader = DictionaryLoader()
+        self._dictionaries = self._dictionary_loader.get_dictionary_list()
+
         curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
         curses.init_pair(2,curses.COLOR_BLACK,curses.COLOR_GREEN)
         self._menu_window = MenuWindow(4,20,3,3,1,2)
         self.register_window(self._menu_window)
 
-        for language in language_list:
-            self._menu_window.add_menu_option(language)
+        for language in self._dictionaries:
+            language = language[:-len(self._dictionary_loader.file_ext)]
+            self._menu_window.add_menu_option(language.capitalize())
     
     def process_input(self, character):
         self._menu_window.process_input(character)
