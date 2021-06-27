@@ -1,5 +1,5 @@
 from datastructures.bk_tree import BKTreeThreaded
-from interface_elements.spell_elements import SpellCheckerScreen
+from interface_elements.spell_elements import SpellCheckerScreen,SelectLanguageScreen
 from edit_distance import levenshtein_distance
 import random
 import sys
@@ -64,7 +64,8 @@ def c_main(stdscr):
    
     dictionary = load_dictionary(new_text_file_path)
     screen_stack = []
-    spell_screen = SpellCheckerScreen(screen_stack,dictionary)
+    #spell_screen = SpellCheckerScreen(screen_stack,dictionary)
+    spell_screen = SelectLanguageScreen(screen_stack)
     screen_stack.append(spell_screen)
     while True:
         character = stdscr.getch()

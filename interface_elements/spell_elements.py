@@ -69,6 +69,9 @@ class MenuWindow(Window):
     def __init__(self,height:int,width:int,y:int,x:int,color_pair_standard:int,color_pair_highlight:int):
         self._height = height
         self._width = width
+        self._bottom_line = height
+        self._start_col = 1
+        self._start_line = 1 
         #height and width are added to as to account for borders
         super().__init__(curses.newwin(height + 2,width + 2,y,x))
 
@@ -111,22 +114,20 @@ class MenuWindow(Window):
         return len(self._menu_options)        
 
     def _draw_element(self):
-        num_lines_to_draw = self._height if len(self._menu_options) > self._height else len(self._menu_options)
-        bottom_line_number = num_lines_to_draw
-        start_index = 0 
+        #important note: Drawing does not start at 0 within the window
+        #but indexing does start at 0. Must compensate
+        start_index = 0
+        end_index = self._height - 1
         #determine the range to draw in the menu
-        if self._selected_option >= bottom_line_number: #selected option below visible area, draw at bottom
-            start_index = self._selected_option - bottom_line_number + 1
-            draw_range = range(start_index,self._selected_option + 1)
-            
-        else: #draw options 0 - bottom_line_number
-            draw_range = range(0,bottom_line_number)
+        if self._selected_option > end_index: #selected option below visible area, draw at bottom
+            start_index = self._selected_option - self._height + 1 #+1 accounts for zero indexing
+            end_index = self._selected_option
         
-        for option in draw_range:
+        for option in range(start_index,end_index+1):
             color = self._base_color
             if option == self._selected_option:
                 color = self._highlight_color
-            self._window.addstr(option - start_index + 1,1,str(option),color)
+            self._window.addstr(option - start_index + self._start_line,self._start_col,self._menu_options[option],color)
         
         #reset color and draw border
         self._window.bkgd(' ',self._base_color)
