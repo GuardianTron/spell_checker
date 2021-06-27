@@ -11,7 +11,7 @@ class Screen(ABC):
         Override this this class to create new screens.
 
     '''
-    def __init__(self,window_stack:list):
+    def __init__(self,window_stack,stdscr):
         '''
             Handles initialization of the Screen.
             Takes a copy of the window stack
@@ -22,6 +22,7 @@ class Screen(ABC):
         '''
         self._windows = []
         self._window_stack = window_stack
+        self._stdscr = stdscr
 
     def register_window(self,window):
         '''Add a window to be drawn.'''
@@ -55,6 +56,12 @@ class Screen(ABC):
         '''Mark all windows to be redrawn in case terminal is resized.'''
         for window in self._windows:
             window.flag_for_redraw()
+    
+    def enter(self):
+        pass
+
+    def exit(self):
+        pass
 
 
 class Window(ABC):
@@ -85,7 +92,38 @@ class Window(ABC):
             self._window.refresh()
             self._draw_this_cycle = False
 
+    
 
     def _draw_element(self):
         '''Override this method in subclass to handle window drawing'''
         pass
+
+class ScreenStack:
+
+    def __init__(self):
+        self._stack = []
+
+    def _check_len_or_error(self):
+        if len(self._stack) < 1:
+            raise LookupError('Stack is empty.')
+   
+    def empty(self):
+        return len(self._stack) == 0
+
+    def __len__(self):
+        return len(self._stack)
+
+    def peek(self):
+        self._check_len_or_error()            
+        return self._stack[-1]
+    
+    def pop(self):
+        self._check_len_or_error()
+        top = self._stack.pop()
+        top.exit()
+        return top
+
+    def append(self,screen:Screen):
+        screen.enter()
+        self._stack.append(screen)
+

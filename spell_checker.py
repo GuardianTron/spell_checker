@@ -3,6 +3,7 @@ from datastructures.bk_tree import BKTreeThreaded
 from interface_elements.spell_elements import SpellCheckerScreen,SelectLanguageScreen
 from edit_distance import levenshtein_distance
 from dictionary_loader import DictionaryLoader
+from interface_elements.base import Screen, ScreenStack
 import sys
 import curses
 from curses import ascii
@@ -37,9 +38,9 @@ def c_main(stdscr):
     else:
         dictionaries = dictionary_loader.get_dictionary_list()
         dictionary = dictionary_loader.load_dictionary(dictionaries[0])
-    screen_stack = []
+    screen_stack = ScreenStack()
     #spell_screen = SpellCheckerScreen(screen_stack,dictionary)
-    spell_screen = SelectLanguageScreen(screen_stack)
+    spell_screen = SelectLanguageScreen(screen_stack,stdscr)
     screen_stack.append(spell_screen)
     while True:
         character = stdscr.getch()
@@ -47,8 +48,8 @@ def c_main(stdscr):
             if character == curses.ascii.ESC:
                 break
         
-        screen_stack[-1].process_input(character)
-        screen_stack[-1].draw(stdscr)
+        screen_stack.peek().process_input(character)
+        screen_stack.peek().draw(stdscr)
             
        
 

@@ -112,6 +112,11 @@ class MenuWindow(Window):
             self._menu_options.remove(text)
         self.flag_for_redraw()
 
+    def clear(self):
+        self._selected_option = 0
+        self._menu_options = []
+        self.flag_for_redraw()
+
     def __len__(self):
         return len(self._menu_options)        
 
@@ -143,8 +148,8 @@ class MenuWindow(Window):
     
 class SpellCheckerScreen(Screen):
 
-    def __init__(self,window_stack:list,dictionary:BKTreeThreaded):
-        super().__init__(window_stack)
+    def __init__(self,window_stack,stdscr,dictionary:BKTreeThreaded):
+        super().__init__(window_stack,stdscr)
         self._input_window = InputWindow(0,0)
         self.register_window(self._input_window)
         curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
@@ -178,20 +183,27 @@ class SpellCheckerScreen(Screen):
 
 class SelectLanguageScreen(Screen): 
 
-    def __init__(self,window_stack:list):
-        super().__init__(window_stack)
+    def __init__(self,window_stack,stdscr):
+        super().__init__(window_stack,stdscr)
 
         self._dictionary_loader = DictionaryLoader()
-        self._dictionaries = self._dictionary_loader.get_dictionary_list()
 
         curses.init_pair(1,curses.COLOR_GREEN,curses.COLOR_BLACK)
         curses.init_pair(2,curses.COLOR_BLACK,curses.COLOR_GREEN)
         self._menu_window = MenuWindow(4,20,3,3,1,2)
         self.register_window(self._menu_window)
 
-        for language in self._dictionaries:
-            language = language[:-len(self._dictionary_loader.file_ext)]
-            self._menu_window.add_menu_option(language.capitalize())
     
     def process_input(self, character):
         self._menu_window.process_input(character)
+
+    def load_dictionary_list(self):
+            self._dictionaries = self._dictionary_loader.get_dictionary_list()
+            self._menu_window.clear()
+            for language in self._dictionaries:
+                language = language[:-len(self._dictionary_loader.file_ext)]
+                self._menu_window.add_menu_option(language.capitalize())
+
+
+    def enter(self):
+        self.load_dictionary_list()
