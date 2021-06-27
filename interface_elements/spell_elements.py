@@ -207,3 +207,7 @@ class SelectLanguageScreen(Screen):
 
     def enter(self):
         self.load_dictionary_list()
+        curses.curs_set(0)
+
+    def exit(self):
+        curses.curs_set(1)
