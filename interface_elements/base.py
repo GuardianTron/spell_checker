@@ -116,6 +116,8 @@ class ScreenStack:
         self._check_len_or_error()
         top = self._stack.pop()
         top.exit()
+        if len(self) > 0:
+            self.peek().enter()
         return top
 
     def append(self,screen:Screen):
