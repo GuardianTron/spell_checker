@@ -121,6 +121,8 @@ class ScreenStack:
         return top
 
     def append(self,screen:Screen):
+        if len(self) > 0:
+            self.peek().exit()
         screen.enter()
         self._stack.append(screen)
 
