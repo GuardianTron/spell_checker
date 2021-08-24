@@ -2,3 +2,4 @@ __pycache__
 dictionary
 *.txt
 *.pbk
+workspace.code-workspace
