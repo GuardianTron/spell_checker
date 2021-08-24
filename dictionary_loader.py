@@ -62,25 +62,31 @@ class DictionaryLoader:
         contents = os.listdir(self._dictionary_dir)
         
         #only return dictionaries
-        return [dictionary for dictionary in contents if dictionary[-len(self._file_ext):] == self._file_ext]
+        dictionaries = [dictionary for dictionary in contents if dictionary[-len(self._file_ext):] == self._file_ext]
+        return dictionaries
 
-    def create_dictionary_builder(self,filepath:str):
-        basename = os.path.basename(filepath).split('.')[0]
-        with open(filepath,'r') as dict_text:
-            words = dict_text.readlines()
-        #prevent recursion issues with ordered lists
-        dictionary_file_path = os.path.join(self._dictionary_dir,basename) + self._file_ext
-        dictionary_resource = DictionaryFileResource(dictionary_file_path)
-        return DictionaryBuilder(words,dictionary_resource,daemon=True)
+    def get_dictionary_file_resource(self,filename) -> DictionaryFileResource:
+        #add file extension if filename does not already have it
+        if filename[-len(self._file_ext):] != self._file_ext:
+            filename += self._file_ext 
+        return DictionaryFileResource(os.path.join(self._dictionary_dir,filename))
     
     
     def load_dictionary(self,dictionary_file_name:str):
-        dictionary_file_path = os.path.join(self._dictionary_dir,dictionary_file_name)
-        return DictionaryFileResource(dictionary_file_path).load()
+        return self.get_dictionary_file_resource(dictionary_file_name).load()
 
     @property
     def file_ext(self):
         return self._file_ext
+
+
+def create_dictionary_builder(dictionary_directory:DictionaryLoader,textfile:str):
+        basename = os.path.basename(textfile).split('.')[0]
+        with open(textfile,'r') as dict_text:
+            words = dict_text.readlines()
+        #prevent recursion issues with ordered lists
+        dictionary_resource = dictionary_directory.get_dictionary_file_resource(basename)
+        return DictionaryBuilder(words,dictionary_resource,daemon=True)
 
 from typing import Callable, List
 
