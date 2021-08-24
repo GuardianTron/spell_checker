@@ -76,6 +76,49 @@ class DictionaryLoader:
     def file_ext(self):
         return self._file_ext
 
+from typing import List
+
+class DictionaryBuilder(threading.Thread):
+
+    def __init__(self,words:List[str],**kwargs):
+        self._word_list = words
+        self._abort_lock = threading.Lock()
+        self._progress_lock = threading.Lock()
+        self._bktree_lock = threading.Lock()
+
+
+        self._abort_early = False
+        self._progess = 0
+        self._bktree = None
+        super().__init__(**kwargs)
+
+    def abort(self):
+        with self._abort_lock:
+            self._abort_early = True
+
+    @property
+    def progress(self):
+        with self._progress_lock:
+            return self._progress_lock
+
+    def _build_tree(self,words):
+        dictionary = BKTreeThreaded(levenshtein_distance)
+        total = len(words)
+        for i in range(0,total):
+            with self._abort_lock:
+                if self._abort_early:
+                    break
+            dictionary.add_element(words[i])
+            with self._progress_lock:
+                self._progress = i/total
+        return dictionary
+
+
+    def run(self):
+        with self._bktree_lock:
+            self._bktree = self._build_tree(self._word_list)
+
+
 
 
 
