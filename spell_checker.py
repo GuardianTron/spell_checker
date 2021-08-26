@@ -2,10 +2,11 @@ from typing import Dict
 from datastructures.bk_tree import BKTreeThreaded
 from interface_elements.spell_elements import SpellCheckerScreen,SelectLanguageScreen
 from edit_distance import levenshtein_distance
-from dictionary_loader import DictionaryLoader
+from dictionary_loader import DictionaryLoader,create_dictionary_builder
 from interface_elements.base import Screen, ScreenStack
 from threading import Thread
 import sys
+
 import curses
 from curses import ascii
 
@@ -35,7 +36,7 @@ def c_main(stdscr):
     new_text_file_path = sys.argv[1] if len(sys.argv) > 1 else None
     dictionary_loader = DictionaryLoader()
     if new_text_file_path:
-        loading_thread = Thread(target=dictionary_loader.create_dictionary,args=(new_text_file_path))
+        loading_thread = create_dictionary_builder(dictionary_loader,new_text_file_path)
         loading_thread.start()
         loading_thread.join()
     else:
