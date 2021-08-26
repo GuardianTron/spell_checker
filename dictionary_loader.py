@@ -84,6 +84,8 @@ def create_dictionary_builder(dictionary_directory:DictionaryLoader,textfile:str
         basename = os.path.basename(textfile).split('.')[0]
         with open(textfile,'r') as dict_text:
             words = dict_text.readlines()
+        #remove white new lines and other whitespace
+        words = list(map(lambda word: word.strip(),words))
         #prevent recursion issues with ordered lists
         dictionary_resource = dictionary_directory.get_dictionary_file_resource(basename)
         return DictionaryBuilder(words,dictionary_resource,daemon=True)

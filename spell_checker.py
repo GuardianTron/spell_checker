@@ -6,6 +6,7 @@ from dictionary_loader import DictionaryLoader,create_dictionary_builder
 from interface_elements.base import Screen, ScreenStack
 from threading import Thread
 import sys
+
 import curses
 from curses import ascii
 
